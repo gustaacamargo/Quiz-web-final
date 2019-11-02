@@ -7,6 +7,7 @@ body {
   display: none;
 }
 
-.category-btn {
+.category-btn,
+.game-btn {
   margin: 5px;
 }

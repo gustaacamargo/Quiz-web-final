@@ -1,14 +1,26 @@
-let objetoTeste = {
+const categoryGame = {
   id: 0,
   name: ''
 };
 
+let difficulty = '';
+
 document.querySelector('.category').classList.add('hidden');
+document.querySelector('.game').classList.add('hidden');
 
 document.querySelector('.easy').addEventListener('click', function() {
-  document.querySelector('.difficulty').classList.add('hidden');
-  addButtonsCattegory();
-  document.querySelector('.category').classList.remove('hidden');
+  defineCategories();
+  difficulty = 'easy';
+});
+
+document.querySelector('.medium').addEventListener('click', function() {
+  defineCategories();
+  difficulty = 'medium';
+});
+
+document.querySelector('.hard').addEventListener('click', function() {
+  defineCategories();
+  difficulty = 'hard';
 });
 
 function addButtonsCattegory() {
@@ -30,12 +42,31 @@ function addButtonsCattegory() {
         buttonsDOM.appendChild(button);
 
         button.addEventListener('click', function(e) {
-          objetoTeste.id = category.id;
-          objetoTeste.name = category.name;
+          categoryGame.id = category.id;
+          categoryGame.name = category.name;
+          questions();
         });
       });
     })
     .catch(function(erro) {
       console.error(erro);
     });
+}
+
+function questions() {
+  axios
+    .get(`https://opentdb.com/api.php?amount=10&category=${categoryGame.id}&difficulty=${difficulty}`)
+    .then(function(response) {
+      const questionDOM = document.querySelector('.question');
+      questionDOM.textContent = response.data.results[0].question;
+
+      document.querySelector('.category').classList.add('hidden');
+      document.querySelector('.game').classList.remove('hidden');
+    });
+}
+
+function defineCategories() {
+  document.querySelector('.difficulty').classList.add('hidden');
+  addButtonsCattegory();
+  document.querySelector('.category').classList.remove('hidden');
 }
