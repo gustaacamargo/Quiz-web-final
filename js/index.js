@@ -7,6 +7,7 @@ let difficulty = '';
 
 document.querySelector('.category').classList.add('hidden');
 document.querySelector('.game').classList.add('hidden');
+document.querySelector('.progress-game').classList.add('hidden');
 
 document.querySelector('.easy').addEventListener('click', function() {
   defineCategories();
@@ -58,8 +59,10 @@ function questions() {
     .get(`https://opentdb.com/api.php?amount=10&category=${categoryGame.id}&difficulty=${difficulty}`)
     .then(function(response) {
       defineQuestions(response);
+      timing();
       document.querySelector('.category').classList.add('hidden');
       document.querySelector('.game').classList.remove('hidden');
+      document.querySelector('.progress-game').classList.remove('hidden');
     });
 }
 
@@ -123,4 +126,31 @@ function defineQuestions(response) {
       buttonsAnswersDOM.appendChild(button);
     }
   } while (0 < len);
+}
+
+function timing() {
+  let seconds = 0;
+  let selector = '';
+  if (difficulty === 'easy') {
+    seconds = 45;
+    selector = '#progress-easy';
+  } else if (difficulty === 'medium') {
+    seconds = 30;
+    selector = '#progress-medium';
+  } else if (difficulty === 'hard') {
+    seconds = 15;
+    selector = '#progress-hard';
+  }
+  let progress = 0;
+
+  let it = setInterval(function() {
+    seconds--;
+    progress++;
+    document.querySelector(selector).style.width = `${progress}%`;
+
+    if (seconds <= 0) {
+      document.querySelector(selector).style.width = `100%`;
+      clearInterval(it);
+    }
+  }, 1000);
 }

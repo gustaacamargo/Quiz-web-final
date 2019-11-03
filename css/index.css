@@ -23,3 +23,11 @@ body {
   border-color: #ff0000;
   color: #000;
 }
+
+.progress-game {
+  margin-top: 20px;
+}
+
+.progress {
+  width: 0%;
+}
