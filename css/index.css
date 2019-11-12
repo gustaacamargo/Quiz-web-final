@@ -12,6 +12,10 @@ body {
   margin: 5px;
 }
 
+.error {
+  color: #ff0000;
+}
+
 .correct-answer,
 .correct-answer:hover {
   background-color: #00ff00;
@@ -48,4 +52,12 @@ body {
 
 .new-question {
   margin-top: 20px;
+}
+
+.end-game {
+  margin-top: 30px;
+}
+
+.end-game-top {
+  margin-top: 15px;
 }

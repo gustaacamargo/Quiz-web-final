@@ -14,13 +14,15 @@ let currentQuestion;
 
 let difficulty = '';
 let score = 0;
-let playTimes = 0;
 let stop = false;
+let errors = 0;
+let questionsAnswered = 0;
 
 question.answerLater = undefined;
 document.querySelector('.category').classList.add('hidden');
 document.querySelector('.game').classList.add('hidden');
 document.querySelector('.progress-game').classList.add('hidden');
+document.querySelector('.end-game').classList.add('hidden');
 document.querySelector('.score').textContent = score;
 
 document.querySelector('.answer-later').addEventListener('click', function() {
@@ -148,17 +150,25 @@ function defineQuestions() {
         button.textContent = answersTemp[numberRandom];
 
         button.addEventListener('click', function(e) {
+          questionsAnswered++;
           if (answersTemp[numberRandom] === currentQuestion.correct_answer) {
             button.classList.add('correct-answer');
             scoreController('correct');
           } else {
             button.classList.add('wrong-answer');
             scoreController('wrong');
+            errors++;
+            if (errors >= 3) {
+              endGame();
+              document.querySelector('.progress-game').classList.add('hidden');
+            }
           }
-          stop = true;
-          newQuestion();
+          if (errors < 3) {
+            stop = true;
+            newQuestion();
+            document.querySelector('.buttons-later').classList.add('hidden');
+          }
         });
-
         buttonsAnswersDOM.appendChild(button);
       }
     } while (0 < len);
@@ -171,6 +181,10 @@ function defineQuestions() {
 function newQuestion() {
   let newQuestion = false;
   //document.querySelector('.progress-game').classList.add('hidden');
+  //
+  // document.querySelector('.answer-later').classList.add('hidden');
+  // document.querySelector('.answer-now').classList.add('hidden');
+  //
   document.querySelector('.new-question').classList.remove('hidden');
   const buttonsAnswersDOM = document.querySelector('.buttons-new');
   const questionDOM = document.querySelector('.info-new');
@@ -220,6 +234,9 @@ function newQuestion() {
                 loadStoredQuestion();
                 //COLOCAR NA FUNCAO ACIMA OS PONTOS A SEREM CONTABILIZADOS PARA QUESTOES ARMAZENADAS
                 document.querySelector('.new-question').classList.add('hidden');
+                document.querySelector('.buttons-later').classList.remove('hidden');
+                startIntervalAnswerLater();
+
                 stop = false;
                 timing();
               });
@@ -229,8 +246,16 @@ function newQuestion() {
               button.textContent = possibilities[index];
 
               button.addEventListener('click', function(e) {
+                //
+                // document.querySelector('.answer-later').classList.remove('hidden');
+                // document.querySelector('.answer-now').classList.remove('hidden');
+                //
+
                 defineQuestions();
                 document.querySelector('.new-question').classList.add('hidden');
+                document.querySelector('.buttons-later').classList.remove('hidden');
+                startIntervalAnswerLater();
+
                 stop = false;
                 timing();
               });
@@ -245,6 +270,8 @@ function newQuestion() {
           existStoredQuestion = false;
         }
         if (existStoredQuestion === false) {
+          document.querySelector('.buttons-later').classList.remove('hidden');
+          startIntervalAnswerLater();
           stop = false;
           timing();
         }
@@ -266,24 +293,44 @@ function newQuestion() {
 }
 
 function endGame() {
-  //TODO implementation
+  document.querySelector('.progress-game').classList.add('hidden');
+
+  const endGameDOM = document.querySelector('.end-game');
+  endGameDOM.innerHTML += `<p class="h5 end-game-top">Score: ${score}</p>`;
+  endGameDOM.innerHTML += `<p class="h5">Questions answered: ${questionsAnswered}</p>`;
+  endGameDOM.innerHTML += `<p class="h5">Difficulty: ${difficulty}</p>`;
+  endGameDOM.innerHTML += `<p class="h5">Category: ${categoryGame.name}</p>`;
+
+  document.querySelector('.end-game').classList.remove('hidden');
 }
 
-function answerLaterF() {
-  startAnswerLater = true;
-  question.answerLater = currentQuestion;
-
+function startIntervalAnswerLater() {
   let it = setInterval(function() {
     if (startAnswerLater === true) {
       document.querySelector('.answer-now').classList.remove('hidden');
+      document.querySelector('.answer-later').classList.add('hidden');
     }
     if (startAnswerLater === false) {
       document.querySelector('.answer-now').classList.add('hidden');
+      document.querySelector('.answer-later').classList.remove('hidden');
       clearInterval(it);
     }
   }, 500);
+}
 
-  newQuestion();
+function answerLaterF() {
+  if (question.answerLater === undefined) {
+    startAnswerLater = true;
+    question.answerLater = currentQuestion;
+
+    newQuestion();
+  } else {
+    const questionDOM = document.querySelector('.info-new');
+
+    questionDOM.textContent = '';
+
+    questionDOM.textContent = 'Answer the question already stored before saving another question';
+  }
 }
 
 function loadStoredQuestion() {
@@ -333,6 +380,7 @@ function loadStoredQuestion() {
       button.textContent = answersTemp[numberRandom];
 
       button.addEventListener('click', function(e) {
+        questionsAnswered++;
         if (answersTemp[numberRandom] === currentQuestion.correct_answer) {
           button.classList.add('correct-answer');
           score = score - 2;
@@ -356,6 +404,19 @@ function scoreController(status) {
       score = score + 5;
     } else {
       score = score - 5;
+    }
+  } else if (difficulty === 'medium') {
+    if (status === 'correct') {
+      score = score + 8;
+    } else {
+      score = score - 8;
+    }
+  }
+  if (difficulty === 'hard') {
+    if (status === 'correct') {
+      score = score + 10;
+    } else {
+      score = score - 10;
     }
   }
 
@@ -385,6 +446,14 @@ function timing() {
     const timingDOM = document.querySelector('.timing');
     timingDOM.textContent = `${seconds} seconds left`;
     if (seconds <= 0 || stop === true) {
+      if (stop !== true) {
+        scoreController('wrong');
+      }
+      if (seconds === 0) {
+        errors++;
+      }
+      document.querySelector('.buttons-later').classList.add('hidden');
+      newQuestion();
       clearInterval(it);
     }
   }, 1000);
