@@ -1,48 +1,89 @@
-const categoryGame = {
-  id: 0,
-  name: ''
+let categoryGame = function(id, name) {
+  this.id = id;
+  this.name = name;
 };
 
-const question = {
-  unanswered: [],
-  answerLater: []
+let question = function(unanswered, answerLater) {
+  this.unanswered = unanswered;
+  this.answerLater = answerLater;
 };
 
-let startAnswerLater = false;
+let game = function(
+  startAnswerLater,
+  currentQuestion,
+  difficulty,
+  score,
+  stop,
+  errors,
+  questionsAnswered
+) {
+  this.categoryGame = categoryGame;
+  this.question = question;
+  this.startAnswerLater = startAnswerLater;
+  this.currentQuestion = currentQuestion;
+  this.difficulty = difficulty;
+  this.score = score;
+  this.stop = stop;
+  this.errors = errors;
+  this.questionsAnswered = questionsAnswered;
+};
 
-let currentQuestion;
+// window.onbeforeunload = function() {
+//   localStorage.setItem('categoryGame', JSON.stringify(categoryGame));
+//   localStorage.setItem('question', JSON.stringify(question));
+//   localStorage.setItem('startAnswerLater', JSON.stringify(startAnswerLater));
+//   localStorage.setItem('currentQuestion', JSON.stringify(currentQuestion));
+//   localStorage.setItem('difficulty', JSON.stringify(difficulty));
+//   localStorage.setItem('score', JSON.stringify(score));
+//   localStorage.setItem('stop', JSON.stringify(stop));
+//   localStorage.setItem('errors', JSON.stringify(errors));
+//   localStorage.setItem('questionsAnswered', JSON.stringify(questionsAnswered));
+//   // ...
+// };
 
-let difficulty = '';
-let score = 0;
-let stop = false;
-let errors = 0;
-let questionsAnswered = 0;
+// window.onload = function() {
+//   categoryGame = JSON.parse(localStorage.getItem('categoryGame'));
 
-question.answerLater = undefined;
+//   question = JSON.parse(localStorage.getItem('question'));
+
+//   startAnswerLater = JSON.parse(localStorage.getItem('startAnswerLater'));
+//   currentQuestion = JSON.parse(localStorage.getItem('currentQuestion'));
+//   difficulty = JSON.parse(localStorage.getItem('difficulty'));
+//   score = JSON.parse(localStorage.getItem('score'));
+//   stop = JSON.parse(localStorage.getItem('stop'));
+//   errors = JSON.parse(localStorage.getItem('errors'));
+//   questionsAnswered = JSON.parse(localStorage.getItem('questionsAnswered'));
+// };
+let currentGame = new game(false, undefined, '', 0, false, 0, 0);
+
+let categoryQuestions = new categoryGame(undefined, undefined);
+
+let currentQuestion = new question(undefined, undefined);
+
 document.querySelector('.category').classList.add('hidden');
 document.querySelector('.game').classList.add('hidden');
 document.querySelector('.progress-game').classList.add('hidden');
 document.querySelector('.end-game').classList.add('hidden');
-document.querySelector('.score').textContent = score;
+document.querySelector('.score').textContent = currentGame.score;
 
 document.querySelector('.answer-later').addEventListener('click', function() {
-  stop = true;
+  currentGame.stop = true;
   answerLaterF();
 });
 
 document.querySelector('.easy').addEventListener('click', function() {
   defineCategories();
-  difficulty = 'easy';
+  currentGame.difficulty = 'easy';
 });
 
 document.querySelector('.medium').addEventListener('click', function() {
   defineCategories();
-  difficulty = 'medium';
+  currentGame.difficulty = 'medium';
 });
 
 document.querySelector('.hard').addEventListener('click', function() {
   defineCategories();
-  difficulty = 'hard';
+  currentGame.difficulty = 'hard';
 });
 
 function addButtonsCattegory() {
@@ -64,8 +105,8 @@ function addButtonsCattegory() {
         buttonsDOM.appendChild(button);
 
         button.addEventListener('click', function(e) {
-          categoryGame.id = category.id;
-          categoryGame.name = category.name;
+          categoryQuestions.id = category.id;
+          categoryQuestions.name = category.name;
           questions();
         });
       });
@@ -77,21 +118,21 @@ function addButtonsCattegory() {
 
 function questions() {
   axios
-    .get(`https://opentdb.com/api.php?amount=10&category=${categoryGame.id}&difficulty=${difficulty}`)
+    .get(
+      `https://opentdb.com/api.php?amount=10&category=${categoryQuestions.id}&difficulty=${currentGame.difficulty}`
+    )
     .then(function(response) {
-      question.unanswered = response.data.results;
+      currentQuestion.unanswered = response.data.results;
 
-      console.log(question.unanswered.length);
+      console.log(currentQuestion.unanswered.length);
 
-      question.unanswered.forEach(questions => {
-        console.log(questions.question);
+      currentQuestion.unanswered.forEach(questions => {
+        console.log(currentQuestion.question);
       });
       defineQuestions();
 
       timing();
-      if (question.answerLater === undefined) {
-        document.querySelector('.answer-now').classList.add('hidden');
-      }
+
       document.querySelector('.category').classList.add('hidden');
       document.querySelector('.game').classList.remove('hidden');
       document.querySelector('.progress-game').classList.remove('hidden');
@@ -108,22 +149,27 @@ function defineQuestions() {
   const buttonsAnswersDOM = document.querySelector('.buttons-game');
   const questionDOM = document.querySelector('.question');
 
-  if (question.unanswered.length > 0) {
+  if (currentQuestion.unanswered.length > 0 || currentQuestion.answerLater !== undefined) {
     buttonsAnswersDOM.textContent = '';
     const answersTemp = [];
 
-    const tamanho = question.unanswered.length;
+    const tamanho = currentQuestion.unanswered.length;
     const i = Math.floor(Math.random() * tamanho);
 
-    currentQuestion = question.unanswered[i];
-    removeOfArray(question.unanswered[i], question.unanswered);
+    if (currentQuestion.unanswered.length > 0) {
+      currentGame.currentQuestion = currentQuestion.unanswered[i];
+      removeOfArray(currentQuestion.unanswered[i], currentQuestion.unanswered);
+    } else {
+      currentGame.currentQuestion = currentQuestion.answerLater;
+      currentQuestion.answerLater = undefined;
+    }
 
     questionDOM.textContent = '';
-    questionDOM.textContent = currentQuestion.question;
+    questionDOM.textContent = currentGame.currentQuestion.question;
 
-    answersTemp.push(currentQuestion.correct_answer);
-    for (let index = 0; index < currentQuestion.incorrect_answers.length; index++) {
-      answersTemp.push(currentQuestion.incorrect_answers[index]);
+    answersTemp.push(currentGame.currentQuestion.correct_answer);
+    for (let index = 0; index < currentGame.currentQuestion.incorrect_answers.length; index++) {
+      answersTemp.push(currentGame.currentQuestion.incorrect_answers[index]);
     }
 
     let len = answersTemp.length;
@@ -150,21 +196,21 @@ function defineQuestions() {
         button.textContent = answersTemp[numberRandom];
 
         button.addEventListener('click', function(e) {
-          questionsAnswered++;
-          if (answersTemp[numberRandom] === currentQuestion.correct_answer) {
+          currentGame.questionsAnswered++;
+          if (answersTemp[numberRandom] === currentGame.currentQuestion.correct_answer) {
             button.classList.add('correct-answer');
             scoreController('correct');
           } else {
             button.classList.add('wrong-answer');
             scoreController('wrong');
-            errors++;
-            if (errors >= 3) {
+            currentGame.errors++;
+            if (currentGame.errors >= 3) {
               endGame();
               document.querySelector('.progress-game').classList.add('hidden');
             }
           }
-          if (errors < 3) {
-            stop = true;
+          if (currentGame.errors < 3) {
+            currentGame.stop = true;
             newQuestion();
             document.querySelector('.buttons-later').classList.add('hidden');
           }
@@ -173,7 +219,21 @@ function defineQuestions() {
       }
     } while (0 < len);
   } else {
-    questionDOM.textContent = 'End';
+    if (currentQuestion.answerLater !== undefined) {
+      loadStoredQuestion();
+      //COLOCAR NA FUNCAO ACIMA OS PONTOS A SEREM CONTABILIZADOS PARA QUESTOES ARMAZENADAS
+      document.querySelector('.new-question').classList.add('hidden');
+      document.querySelector('.buttons-later').classList.remove('hidden');
+      startIntervalAnswerLater();
+
+      currentGame.stop = false;
+      timing();
+    } else {
+      questionDOM.textContent = 'The questions ended';
+
+      endGame();
+    }
+
     //ESCONDER BOTOES E TIMING
   }
 }
@@ -210,7 +270,7 @@ function newQuestion() {
       button.addEventListener('click', function(e) {
         newQuestion = conditions[index];
 
-        if (question.answerLater !== undefined) {
+        if (currentQuestion.answerLater !== undefined) {
           existStoredQuestion = true;
           buttonsAnswersDOM.textContent = '';
           questionDOM.textContent = '';
@@ -237,7 +297,7 @@ function newQuestion() {
                 document.querySelector('.buttons-later').classList.remove('hidden');
                 startIntervalAnswerLater();
 
-                stop = false;
+                currentGame.stop = false;
                 timing();
               });
             } else {
@@ -256,7 +316,7 @@ function newQuestion() {
                 document.querySelector('.buttons-later').classList.remove('hidden');
                 startIntervalAnswerLater();
 
-                stop = false;
+                currentGame.stop = false;
                 timing();
               });
             }
@@ -272,7 +332,7 @@ function newQuestion() {
         if (existStoredQuestion === false) {
           document.querySelector('.buttons-later').classList.remove('hidden');
           startIntervalAnswerLater();
-          stop = false;
+          currentGame.stop = false;
           timing();
         }
       });
@@ -282,6 +342,8 @@ function newQuestion() {
       button.addEventListener('click', function(e) {
         newQuestion = conditions[index];
         document.querySelector('.new-question').classList.add('hidden');
+        document.querySelector('.question').textContent = 'Did you give up';
+
         endGame();
       });
     }
@@ -294,34 +356,35 @@ function newQuestion() {
 
 function endGame() {
   document.querySelector('.progress-game').classList.add('hidden');
+  document.querySelector('.buttons-game').classList.add('hidden');
 
   const endGameDOM = document.querySelector('.end-game');
-  endGameDOM.innerHTML += `<p class="h5 end-game-top">Score: ${score}</p>`;
-  endGameDOM.innerHTML += `<p class="h5">Questions answered: ${questionsAnswered}</p>`;
-  endGameDOM.innerHTML += `<p class="h5">Difficulty: ${difficulty}</p>`;
-  endGameDOM.innerHTML += `<p class="h5">Category: ${categoryGame.name}</p>`;
+  endGameDOM.innerHTML += `<p class="h5 end-game-top">Score: ${currentGame.score}</p>`;
+  endGameDOM.innerHTML += `<p class="h5">Questions answered: ${currentGame.questionsAnswered}</p>`;
+  endGameDOM.innerHTML += `<p class="h5">Difficulty: ${currentGame.difficulty}</p>`;
+  endGameDOM.innerHTML += `<p class="h5">Category: ${categoryQuestions.name}</p>`;
 
   document.querySelector('.end-game').classList.remove('hidden');
+
+  localStorage.clear();
 }
 
 function startIntervalAnswerLater() {
   let it = setInterval(function() {
-    if (startAnswerLater === true) {
-      document.querySelector('.answer-now').classList.remove('hidden');
+    if (currentGame.startAnswerLater === true) {
       document.querySelector('.answer-later').classList.add('hidden');
     }
-    if (startAnswerLater === false) {
-      document.querySelector('.answer-now').classList.add('hidden');
+    if (currentGame.startAnswerLater === false) {
       document.querySelector('.answer-later').classList.remove('hidden');
       clearInterval(it);
     }
-  }, 500);
+  }, 100);
 }
 
 function answerLaterF() {
-  if (question.answerLater === undefined) {
-    startAnswerLater = true;
-    question.answerLater = currentQuestion;
+  if (currentQuestion.answerLater === undefined) {
+    currentGame.startAnswerLater = true;
+    currentQuestion.answerLater = currentGame.currentQuestion;
 
     newQuestion();
   } else {
@@ -334,7 +397,7 @@ function answerLaterF() {
 }
 
 function loadStoredQuestion() {
-  startAnswerLater = false;
+  currentGame.startAnswerLater = false;
 
   const buttonsAnswersDOM = document.querySelector('.buttons-game');
   const questionDOM = document.querySelector('.question');
@@ -343,17 +406,17 @@ function loadStoredQuestion() {
   const answersTemp = [];
   let i;
 
-  currentQuestion = question.answerLater;
-  question.answerLater = undefined;
+  currentGame.currentQuestion = currentQuestion.answerLater;
+  currentQuestion.answerLater = undefined;
   //removeOfArray(question.answerLater, question.answerLater);
 
   questionDOM.textContent = '';
-  questionDOM.textContent = currentQuestion.question;
+  questionDOM.textContent = currentGame.currentQuestion.question;
 
-  answersTemp.push(currentQuestion.correct_answer);
+  answersTemp.push(currentGame.currentQuestion.correct_answer);
 
-  for (let index = 0; index < currentQuestion.incorrect_answers.length; index++) {
-    answersTemp.push(currentQuestion.incorrect_answers[index]);
+  for (let index = 0; index < currentGame.currentQuestion.incorrect_answers.length; index++) {
+    answersTemp.push(currentGame.currentQuestion.incorrect_answers[index]);
   }
 
   let len = answersTemp.length;
@@ -380,16 +443,16 @@ function loadStoredQuestion() {
       button.textContent = answersTemp[numberRandom];
 
       button.addEventListener('click', function(e) {
-        questionsAnswered++;
-        if (answersTemp[numberRandom] === currentQuestion.correct_answer) {
+        currentGame.questionsAnswered++;
+        if (answersTemp[numberRandom] === currentGame.currentQuestion.correct_answer) {
           button.classList.add('correct-answer');
-          score = score - 2;
+          currentGame.score = currentGame.score - 2;
           scoreController('correct');
         } else {
           button.classList.add('wrong-answer');
           scoreController('wrong');
         }
-        stop = true;
+        currentGame.stop = true;
         newQuestion();
       });
 
@@ -399,41 +462,45 @@ function loadStoredQuestion() {
 }
 
 function scoreController(status) {
-  if (difficulty === 'easy') {
+  if (currentGame.difficulty === 'easy') {
     if (status === 'correct') {
-      score = score + 5;
+      currentGame.score += 5;
     } else {
-      score = score - 5;
+      currentGame.score -= 5;
     }
-  } else if (difficulty === 'medium') {
+  } else if (currentGame.difficulty === 'medium') {
     if (status === 'correct') {
-      score = score + 8;
+      currentGame.score += 8;
     } else {
-      score = score - 8;
+      currentGame.score -= 8;
     }
   }
-  if (difficulty === 'hard') {
+  if (currentGame.difficulty === 'hard') {
     if (status === 'correct') {
-      score = score + 10;
+      currentGame.score += 10;
     } else {
-      score = score - 10;
+      currentGame.score -= 10;
     }
   }
 
   let scoreDOM = document.querySelector('.score');
-  scoreDOM.textContent = score;
+  scoreDOM.textContent = currentGame.score;
 }
 
 function timing() {
   let seconds = 0;
   let selector = '';
-  if (difficulty === 'easy') {
+  let interval = 0;
+  if (currentGame.difficulty === 'easy') {
+    interval = 100 / 45;
     seconds = 45;
     selector = '#progress-easy';
-  } else if (difficulty === 'medium') {
+  } else if (currentGame.difficulty === 'medium') {
+    interval = 100 / 30;
     seconds = 30;
     selector = '#progress-medium';
-  } else if (difficulty === 'hard') {
+  } else if (currentGame.difficulty === 'hard') {
+    interval = 100 / 15;
     seconds = 15;
     selector = '#progress-hard';
   }
@@ -442,15 +509,15 @@ function timing() {
   let it = setInterval(function() {
     seconds--;
     progress++;
-    document.querySelector(selector).style.width = `${progress}%`;
+    document.querySelector(selector).style.width = `${progress * interval}%`;
     const timingDOM = document.querySelector('.timing');
     timingDOM.textContent = `${seconds} seconds left`;
-    if (seconds <= 0 || stop === true) {
-      if (stop !== true) {
+    if (seconds <= 0 || currentGame.stop === true) {
+      if (currentGame.stop !== true) {
         scoreController('wrong');
       }
       if (seconds === 0) {
-        errors++;
+        currentGame.errors++;
       }
       document.querySelector('.buttons-later').classList.add('hidden');
       newQuestion();
