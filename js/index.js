@@ -28,37 +28,44 @@ let game = function(
   this.questionsAnswered = questionsAnswered;
 };
 
+game.prototype.clear = function() {
+  this.categoryGame = undefined;
+  this.question = undefined;
+  this.startAnswerLater = false;
+  this.currentQuestion = undefined;
+  this.difficulty = '';
+  this.score = 0;
+  this.stop = false;
+  this.errors = 0;
+  this.questionsAnswered = 0;
+};
+
+let categoryQuestions = new categoryGame(undefined, undefined);
+let currentQuestion = new question(undefined, undefined);
+let currentGame = new game(false, undefined, '', 0, false, 0, 0);
+
 // window.onbeforeunload = function() {
 //   localStorage.setItem('categoryGame', JSON.stringify(categoryGame));
-//   localStorage.setItem('question', JSON.stringify(question));
-//   localStorage.setItem('startAnswerLater', JSON.stringify(startAnswerLater));
 //   localStorage.setItem('currentQuestion', JSON.stringify(currentQuestion));
-//   localStorage.setItem('difficulty', JSON.stringify(difficulty));
-//   localStorage.setItem('score', JSON.stringify(score));
-//   localStorage.setItem('stop', JSON.stringify(stop));
-//   localStorage.setItem('errors', JSON.stringify(errors));
-//   localStorage.setItem('questionsAnswered', JSON.stringify(questionsAnswered));
-//   // ...
+//   localStorage.setItem('currentGame', JSON.stringify(currentGame));
 // };
 
 // window.onload = function() {
-//   categoryGame = JSON.parse(localStorage.getItem('categoryGame'));
+//   if (categoryGame !== undefined) {
+//     categoryGame = JSON.parse(localStorage.getItem('categoryGame'));
+//   } else {
+//   }
 
-//   question = JSON.parse(localStorage.getItem('question'));
+//   if (currentQuestion !== undefined) {
+//     currentQuestion = JSON.parse(localStorage.getItem('currentQuestion'));
+//   } else {
+//   }
 
-//   startAnswerLater = JSON.parse(localStorage.getItem('startAnswerLater'));
-//   currentQuestion = JSON.parse(localStorage.getItem('currentQuestion'));
-//   difficulty = JSON.parse(localStorage.getItem('difficulty'));
-//   score = JSON.parse(localStorage.getItem('score'));
-//   stop = JSON.parse(localStorage.getItem('stop'));
-//   errors = JSON.parse(localStorage.getItem('errors'));
-//   questionsAnswered = JSON.parse(localStorage.getItem('questionsAnswered'));
+//   if (currentGame !== undefined) {
+//     currentGame = JSON.parse(localStorage.getItem('currentGame'));
+//   } else {
+//   }
 // };
-let currentGame = new game(false, undefined, '', 0, false, 0, 0);
-
-let categoryQuestions = new categoryGame(undefined, undefined);
-
-let currentQuestion = new question(undefined, undefined);
 
 document.querySelector('.category').classList.add('hidden');
 document.querySelector('.game').classList.add('hidden');
