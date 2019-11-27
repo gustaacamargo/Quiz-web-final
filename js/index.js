@@ -17,8 +17,8 @@ let game = function(
   errors,
   questionsAnswered
 ) {
-  this.categoryGame = categoryGame;
-  this.question = question;
+  // this.categoryGame = categoryGame;
+  // this.question = question;
   this.startAnswerLater = startAnswerLater;
   this.currentQuestion = currentQuestion;
   this.difficulty = difficulty;
@@ -349,7 +349,7 @@ function newQuestion() {
       button.addEventListener('click', function(e) {
         newQuestion = conditions[index];
         document.querySelector('.new-question').classList.add('hidden');
-        document.querySelector('.question').textContent = 'Did you give up';
+        document.querySelector('.question').textContent = 'You gave up';
 
         endGame();
       });
