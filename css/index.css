@@ -7,6 +7,13 @@ body {
   display: none;
 }
 
+.btn-game:disabled,
+.btn-game[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+}
+
 .category-btn,
 .game-btn {
   margin: 5px;
@@ -17,14 +24,16 @@ body {
 }
 
 .correct-answer,
-.correct-answer:hover {
+.correct-answer:hover, .correct-answer:disabled,
+.correct-answer[disabled] {
   background-color: #00ff00;
   border-color: #00ff00;
   color: #000;
 }
 
 .wrong-answer,
-.wrong-answer:hover {
+.wrong-answer:hover, .wrong-answer:disabled,
+.wrong-answer[disabled] {
   background-color: #ff0000;
   border-color: #ff0000;
   color: #000;

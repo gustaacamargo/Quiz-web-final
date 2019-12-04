@@ -192,6 +192,7 @@ function defineQuestions() {
       button.classList.add('btn');
       button.classList.add('btn-primary');
       button.classList.add('category-btn');
+      button.classList.add('category-btn');
 
       const tamanho = answersTemp.length;
       const numberRandom = Math.floor(Math.random() * tamanho);
@@ -203,6 +204,11 @@ function defineQuestions() {
         button.textContent = answersTemp[numberRandom];
 
         button.addEventListener('click', function(e) {
+          
+          document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.disabled = true;
+          });
+
           currentGame.questionsAnswered++;
           if (answersTemp[numberRandom] === currentGame.currentQuestion.correct_answer) {
             button.classList.add('correct-answer');
@@ -246,6 +252,7 @@ function defineQuestions() {
 }
 
 function newQuestion() {
+
   if (currentGame.errors >= 3) {
     endGame();
     document.querySelector('.progress-game').classList.add('hidden');
