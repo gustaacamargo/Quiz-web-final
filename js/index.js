@@ -246,119 +246,127 @@ function defineQuestions() {
 }
 
 function newQuestion() {
-  let newQuestion = false;
-  //document.querySelector('.progress-game').classList.add('hidden');
-  //
-  // document.querySelector('.answer-later').classList.add('hidden');
-  // document.querySelector('.answer-now').classList.add('hidden');
-  //
-  document.querySelector('.new-question').classList.remove('hidden');
-  const buttonsAnswersDOM = document.querySelector('.buttons-new');
-  const questionDOM = document.querySelector('.info-new');
-
-  buttonsAnswersDOM.textContent = '';
-  questionDOM.textContent = '';
-
-  questionDOM.textContent = 'Want to answer another question?';
-
-  const possibilities = ['Yes', 'No'];
-  const conditions = [true, false];
-  let existStoredQuestion = false;
-
-  for (let index = 0; index < possibilities.length; index++) {
-    const button = document.createElement('button');
-    button.classList.add('btn');
-    button.classList.add('btn-primary');
-    button.classList.add('category-btn');
-
-    if (conditions[index] === true) {
-      button.classList.add('btn-success');
-
-      button.addEventListener('click', function(e) {
-        newQuestion = conditions[index];
-
-        if (currentQuestion.answerLater !== undefined) {
-          existStoredQuestion = true;
-          buttonsAnswersDOM.textContent = '';
-          questionDOM.textContent = '';
-
-          questionDOM.textContent = 'Do you want to answer the stored question?';
-
-          const possibilities = ['Yes', 'No'];
-          const conditions = [true, false];
-
-          for (let index = 0; index < possibilities.length; index++) {
-            const button = document.createElement('button');
-            button.classList.add('btn');
-            button.classList.add('btn-primary');
-            button.classList.add('category-btn');
-
-            if (conditions[index] === true) {
-              button.classList.add('btn-success');
-              button.textContent = possibilities[index];
-
-              button.addEventListener('click', function(e) {
-                loadStoredQuestion();
-                //COLOCAR NA FUNCAO ACIMA OS PONTOS A SEREM CONTABILIZADOS PARA QUESTOES ARMAZENADAS
-                document.querySelector('.new-question').classList.add('hidden');
-                document.querySelector('.buttons-later').classList.remove('hidden');
-                startIntervalAnswerLater();
-
-                currentGame.stop = false;
-                timing();
-              });
-            } else {
-              button.classList.add('btn-danger');
-
-              button.textContent = possibilities[index];
-
-              button.addEventListener('click', function(e) {
-                //
-                // document.querySelector('.answer-later').classList.remove('hidden');
-                // document.querySelector('.answer-now').classList.remove('hidden');
-                //
-
-                defineQuestions();
-                document.querySelector('.new-question').classList.add('hidden');
-                document.querySelector('.buttons-later').classList.remove('hidden');
-                startIntervalAnswerLater();
-
-                currentGame.stop = false;
-                timing();
-              });
-            }
-
-            buttonsAnswersDOM.appendChild(button);
-          }
-        } else {
-          defineQuestions();
-          document.querySelector('.new-question').classList.add('hidden');
-
-          existStoredQuestion = false;
-        }
-        if (existStoredQuestion === false) {
-          document.querySelector('.buttons-later').classList.remove('hidden');
-          startIntervalAnswerLater();
-          currentGame.stop = false;
-          timing();
-        }
-      });
-    } else {
-      button.classList.add('btn-danger');
-
-      button.addEventListener('click', function(e) {
-        newQuestion = conditions[index];
-        document.querySelector('.new-question').classList.add('hidden');
-        document.querySelector('.question').textContent = 'You gave up';
-
-        endGame();
-      });
-    }
-
-    button.textContent = possibilities[index];
-
-    buttonsAnswersDOM.appendChild(button);
+  if (currentGame.errors >= 3) {
+    endGame();
+    document.querySelector('.progress-game').classList.add('hidden');
   }
+  else{
+    let newQuestion = false;
+    //document.querySelector('.progress-game').classList.add('hidden');
+    //
+    // document.querySelector('.answer-later').classList.add('hidden');
+    // document.querySelector('.answer-now').classList.add('hidden');
+    //
+    document.querySelector('.new-question').classList.remove('hidden');
+    const buttonsAnswersDOM = document.querySelector('.buttons-new');
+    const questionDOM = document.querySelector('.info-new');
+  
+    buttonsAnswersDOM.textContent = '';
+    questionDOM.textContent = '';
+  
+    questionDOM.textContent = 'Want to answer another question?';
+  
+    const possibilities = ['Yes', 'No'];
+    const conditions = [true, false];
+    let existStoredQuestion = false;
+  
+    for (let index = 0; index < possibilities.length; index++) {
+      const button = document.createElement('button');
+      button.classList.add('btn');
+      button.classList.add('btn-primary');
+      button.classList.add('category-btn');
+  
+      if (conditions[index] === true) {
+        button.classList.add('btn-success');
+  
+        button.addEventListener('click', function(e) {
+          newQuestion = conditions[index];
+  
+          if (currentQuestion.answerLater !== undefined) {
+            existStoredQuestion = true;
+            buttonsAnswersDOM.textContent = '';
+            questionDOM.textContent = '';
+  
+            questionDOM.textContent = 'Do you want to answer the stored question?';
+  
+            const possibilities = ['Yes', 'No'];
+            const conditions = [true, false];
+  
+            for (let index = 0; index < possibilities.length; index++) {
+              const button = document.createElement('button');
+              button.classList.add('btn');
+              button.classList.add('btn-primary');
+              button.classList.add('category-btn');
+  
+              if (conditions[index] === true) {
+                button.classList.add('btn-success');
+                button.textContent = possibilities[index];
+  
+                button.addEventListener('click', function(e) {
+                  loadStoredQuestion();
+                  //COLOCAR NA FUNCAO ACIMA OS PONTOS A SEREM CONTABILIZADOS PARA QUESTOES ARMAZENADAS
+                  document.querySelector('.new-question').classList.add('hidden');
+                  document.querySelector('.buttons-later').classList.remove('hidden');
+                  startIntervalAnswerLater();
+  
+                  currentGame.stop = false;
+                  timing();
+                });
+              } else {
+                button.classList.add('btn-danger');
+  
+                button.textContent = possibilities[index];
+  
+                button.addEventListener('click', function(e) {
+                  //
+                  // document.querySelector('.answer-later').classList.remove('hidden');
+                  // document.querySelector('.answer-now').classList.remove('hidden');
+                  //
+  
+                  defineQuestions();
+                  document.querySelector('.new-question').classList.add('hidden');
+                  document.querySelector('.buttons-later').classList.remove('hidden');
+                  startIntervalAnswerLater();
+  
+                  currentGame.stop = false;
+                  timing();
+                });
+              }
+  
+              buttonsAnswersDOM.appendChild(button);
+            }
+          } else {
+            defineQuestions();
+            document.querySelector('.new-question').classList.add('hidden');
+  
+            existStoredQuestion = false;
+          }
+          if (existStoredQuestion === false) {
+            document.querySelector('.buttons-later').classList.remove('hidden');
+            startIntervalAnswerLater();
+            currentGame.stop = false;
+            timing();
+          }
+        });
+      } else {
+        button.classList.add('btn-danger');
+  
+        button.addEventListener('click', function(e) {
+          newQuestion = conditions[index];
+          document.querySelector('.new-question').classList.add('hidden');
+          document.querySelector('.question').textContent = 'You gave up';
+  
+          endGame();
+        });
+      }
+  
+      button.textContent = possibilities[index];
+  
+      buttonsAnswersDOM.appendChild(button);
+    }
+  }
+
+  
 }
 
 function endGame() {
